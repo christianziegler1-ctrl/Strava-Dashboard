@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strava Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="screen-login">
+  <div class="login-inner">
+    <div class="brand">LAUF<span>STATS</span></div>
+    <div class="brand-sub">Dein persönliches Strava Dashboard</div>
+    <button class="strava-btn" onclick="stravaLogin()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+      Mit Strava verbinden
+    </button>
+    <p class="login-note">Einmalig einloggen — danach öffnet sich alles automatisch</p>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="screen-loading">
+  <div class="spin"></div>
+  <div class="spin-text" id="spin-text">Verbinde mit Strava…</div>
+</div>
+
+<!-- APP -->
+<div id="screen-app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo">LAUF<span>STATS</span></div>
+    </div>
+    <div class="header-right">
+      <div class="athlete-wrap">
+        <img id="athlete-avatar" src="" alt="" class="avatar">
+        <div>
+          <div class="athlete-name" id="athlete-name">—</div>
+          <div class="athlete-meta" id="athlete-meta">—</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Abmelden</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" data-tab="overview" onclick="switchTab(this)">📊 Übersicht</div>
+    <div class="tab" data-tab="activities" onclick="switchTab(this)">🏃 Läufe</div>
+    <div class="tab" data-tab="charts" onclick="switchTab(this)">📈 Analyse</div>
+    <div class="tab" data-tab="plan" onclick="switchTab(this)">🎯 Trainingsplan</div>
+    <div class="tab" data-tab="prs" onclick="switchTab(this)">🏆 Bestzeiten</div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- ── OVERVIEW ── -->
+    <div id="tab-overview" class="tab-content active">
+      <div class="stat-grid" id="stat-grid"></div>
+      <div class="section">
+        <div class="section-title">📅 Letzte Läufe</div>
+        <div id="recent-runs"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">📊 Wochenkilometer</div>
+        <div class="chart-card"><div class="chart-wrap"><canvas id="weeklyChart"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- ── ACTIVITIES ── -->
+    <div id="tab-activities" class="tab-content">
+      <div class="section">
+        <div class="section-title">🏃 Alle Läufe</div>
+        <div class="filter-row">
+          <select id="filter-year" onchange="renderActivities()">
+            <option value="">Alle Jahre</option>
+          </select>
+          <select id="sort-by" onchange="renderActivities()">
+            <option value="date">Neueste zuerst</option>
+            <option value="distance">Längste zuerst</option>
+            <option value="pace">Schnellste Pace</option>
+          </select>
+        </div>
+        <div id="all-activities"></div>
+      </div>
+    </div>
+
+    <!-- ── CHARTS ── -->
+    <div id="tab-charts" class="tab-content">
+      <div class="section">
+        <div class="section-title">⚡ Pace-Entwicklung</div>
+        <div class="chart-card"><div class="chart-wrap"><canvas id="paceChart"></canvas></div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">📅 Monatliche Kilometer</div>
+        <div class="chart-card"><div class="chart-wrap"><canvas id="monthlyChart"></canvas></div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">📏 Distanz-Verteilung</div>
+        <div class="chart-card"><div class="chart-wrap" style="height:200px"><canvas id="distChart"></canvas></div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">🫀 Herzfrequenz-Zonen</div>
+        <div class="chart-card" id="hr-zone-card"></div>
+      </div>
+    </div>
+
+    <!-- ── PLAN ── -->
+    <div id="tab-plan" class="tab-content">
+      <div class="plan-setup" id="plan-setup">
+        <div class="section-title">🎯 Ziel definieren</div>
+        <div class="setup-label">Zieldistanz</div>
+        <div class="dist-grid">
+          <div class="dist-btn" onclick="selectDist(5,this)"><div class="dist-km">5</div><div class="dist-lbl">Kilometer</div></div>
+          <div class="dist-btn" onclick="selectDist(10,this)"><div class="dist-km">10</div><div class="dist-lbl">Kilometer</div></div>
+          <div class="dist-btn" onclick="selectDist(21.1,this)"><div class="dist-km">21</div><div class="dist-lbl">Halbmarathon</div></div>
+          <div class="dist-btn" onclick="selectDist(42.2,this)"><div class="dist-km">42</div><div class="dist-lbl">Marathon</div></div>
+        </div>
+        <div class="setup-label">Zielzeit</div>
+        <div class="time-row">
+          <input class="time-inp" id="p-hours" type="number" min="0" max="9" placeholder="Std">
+          <input class="time-inp" id="p-min" type="number" min="0" max="59" placeholder="Min">
+          <input class="time-inp" id="p-sec" type="number" min="0" max="59" placeholder="Sek">
+        </div>
+        <button class="go-btn" id="go-btn" onclick="buildPlan()" disabled>TRAININGSPLAN ERSTELLEN</button>
+      </div>
+
+      <div id="plan-view" style="display:none">
+        <div class="plan-top">
+          <div>
+            <div class="plan-dist-label" id="plan-dist-label">5K</div>
+            <div class="plan-goal-sub" id="plan-goal-sub">Ziel —</div>
+          </div>
+          <button class="back-btn" onclick="resetPlan()">⚙ Ziel ändern</button>
+        </div>
+        <div class="goal-progress-card" id="goal-progress-card"></div>
+        <div class="section">
+          <div class="section-title">✅ Diese Woche gelaufen</div>
+          <div id="plan-this-week"></div>
+        </div>
+        <div class="week-nav">
+          <button class="wk-btn" onclick="changeWeek(-1)">←</button>
+          <div class="wk-label" id="wk-label">DIESE WOCHE</div>
+          <button class="wk-btn" onclick="changeWeek(1)">→</button>
+        </div>
+        <div id="plan-sessions"></div>
+      </div>
+    </div>
+
+    <!-- ── PRS ── -->
+    <div id="tab-prs" class="tab-content">
+      <div class="section">
+        <div class="section-title">🏆 Persönliche Bestzeiten</div>
+        <div class="pr-grid" id="pr-grid"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">📈 5K Pace-Verlauf</div>
+        <div class="chart-card"><div class="chart-wrap"><canvas id="prChart"></canvas></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
