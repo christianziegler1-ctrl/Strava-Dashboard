@@ -200,3 +200,20 @@ a { color: var(--orange); }
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── API KEY BOX ── */
+.api-key-box { background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:4px; }
+.api-key-row { display:flex; gap:8px; }
+.api-key-inp { flex:1; background:var(--card); border:2px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-size:13px; outline:none; font-family:monospace; }
+.api-key-inp:focus { border-color:var(--orange); }
+.save-key-btn { background:var(--orange); color:#fff; border:none; border-radius:8px; padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+.save-key-btn:hover { background:var(--orange2); }
+.key-status { font-size:12px; margin-top:6px; color:var(--muted); }
+
+/* ── AI LOADING ── */
+.ai-loading { display:flex; flex-direction:column; align-items:center; gap:16px; padding:40px 20px; }
+.ai-spin { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--orange); border-radius:50%; animation:spin 0.7s linear infinite; }
+.ai-load-text { font-size:13px; color:var(--muted); text-align:center; }
+
+/* ── SCIENCE NOTE ── */
+.s-science { font-size:12px; color:var(--blue); margin-top:6px; padding:6px 10px; background:rgba(96,165,250,0.08); border-radius:6px; border-left:2px solid var(--blue); line-height:1.4; }
